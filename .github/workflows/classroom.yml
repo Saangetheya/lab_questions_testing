@@ -1,0 +1,46 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout student repository
+      uses: actions/checkout@v4
+    - name: Checkout private autograder
+      uses: actions/checkout@v4
+      with:
+        repository: dsci510-20261-ambite-org/autograder
+        token: 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
+        path: autograder
+    - name: Copy tests into student repo
+      run: cp -r autograder/stationery/tests tests
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+    - name: Set up # install numpy pytest
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy pytest pytest-timeout
+        npm install @actions/core@^1.10.1 @actions/github@^6.0.0 @actions/exec@^1.1.1
+    - name: Test  # run pytest
+      id: test
+      run: |
+        PYTHONPATH=$(pwd) pytest tests/
+      continue-on-error: true
+    - name: Autograding Reporter # run tests/print_scores.py
+      run: |
+        python -m tests.print_scores
+    - name: Upload autograding results
+      run: |
+        node ./tests/notify_classroom.js
