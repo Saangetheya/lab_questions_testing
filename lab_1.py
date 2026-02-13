@@ -17,14 +17,4 @@ def items_sold(record_file_name: str) -> Dict[str, Dict[str, int]]:
     :param record_file_name: Name of the record file.
     :return: nested dictionary {item_name: {color: total_sold}}
     """
-    result = {}
-    with open(record_file_name, "r") as f:
-        for line in f:
-            parts = line.strip().split(", ")
-            item_name, color, qty = parts[0], parts[1], int(parts[2])
-            if qty < 0:
-                sold = abs(qty)
-                if item_name not in result:
-                    result[item_name] = {}
-                result[item_name][color] = result[item_name].get(color, 0) + sold
-    return result
+    return {}
